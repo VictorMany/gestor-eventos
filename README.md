@@ -1,69 +1,100 @@
-<!--
-title: 'AWS Simple HTTP Endpoint example in NodeJS'
-description: 'This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.'
-layout: Doc
-framework: v4
-platform: AWS
-language: nodeJS
-authorLink: 'https://github.com/serverless'
-authorName: 'Serverless, Inc.'
-authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
--->
+# 🎉 Event Booking API – Serverless Microservices
 
-# Serverless Framework Node HTTP API on AWS
+Este proyecto es una API RESTful construida con **AWS Lambda** y el framework **Serverless v4**, diseñada para gestionar un sistema de reservas de eventos. Utiliza **DynamoDB** como base de datos y expone múltiples endpoints organizados por recursos clave como usuarios, lugares (venues), proveedores (vendors) y cotizaciones (quotes).
 
-This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.
+---
 
-This template does not include any kind of persistence (database). For more advanced examples, check out the [serverless/examples repository](https://github.com/serverless/examples/) which includes Typescript, Mongo, DynamoDB and other examples.
+## 🚀 Tecnologías
 
-## Usage
+* **Node.js 18.x**
+* **AWS Lambda**
+* **Serverless Framework v4**
+* **DynamoDB (PAY\_PER\_REQUEST)**
+* **API Gateway**
+* **Postman (para pruebas)**
 
-### Deployment
+---
 
-In order to deploy the example, you need to run the following command:
+## 📦 Estructura del Proyecto
 
 ```
-serverless deploy
+.
+├── handlers/
+│   ├── users/
+│   ├── venues/
+│   ├── vendors/
+│   └── quotes/
+├── serverless.yml
+└── README.md
 ```
 
-After running deploy, you should see output similar to:
+Cada recurso tiene sus propias funciones para:
 
+* Crear
+* Obtener por ID
+* Listar
+* Actualizar (tipo PATCH)
+* Eliminar
+
+---
+
+## 📚 Recursos principales
+
+### ✅ Users
+
+* Campos: `userId`, `email`, `passwordHash`, `fullName`, `role`, `phoneNumber`, `profilePhotoUrl`, `createdAt`, `updatedAt`
+* Roles posibles: `host`, `client`, `vendor`, `admin`
+
+### ✅ Venues (Lugares)
+
+* Campos: `placeId`, `hostId`, `name`, `description`, `address`, `city`, `state`, `country`, `latitude`, `longitude`, `capacity`, `pricePerHour`, `rules`, `amenities`, `photosUrls`, `availabilityCalendar`, `createdAt`, `updatedAt`
+
+### ✅ Vendors (Proveedores)
+
+* Campos: `vendorId`, `userId`, `name`, `category`, `description`, `services`, `location`, `contactEmail`, `contactPhone`, `ratings`, `photosUrls`, `createdAt`, `updatedAt`
+
+### ✅ Quotes (Cotizaciones)
+
+* Campos: `quoteId`, `clientId`, `vendorId`, `venueId`, `status` (`pending`, `approved`, `rejected`), `date`, `totalPrice`, `notes`, `createdAt`, `updatedAt`
+
+---
+
+## ⚙️ Comandos comunes
+
+### Desplegar a AWS
+
+```bash
+sls deploy
 ```
-Deploying "serverless-http-api" to stage "dev" (us-east-1)
 
-✔ Service deployed to stack serverless-http-api-dev (91s)
+### Ejecutar localmente
 
-endpoint: GET - https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/
-functions:
-  hello: serverless-http-api-dev-hello (1.6 kB)
+```bash
+sls invoke local --function <functionName> --path event.json
 ```
 
-_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [HTTP API (API Gateway V2) event docs](https://www.serverless.com/framework/docs/providers/aws/events/http-api).
+### Eliminar stack
 
-### Invocation
-
-After successful deployment, you can call the created application via HTTP:
-
-```
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
+```bash
+sls remove
 ```
 
-Which should result in response similar to:
+---
 
-```json
-{ "message": "Go Serverless v4! Your function executed successfully!" }
-```
+## 📬 API Testing
 
-### Local development
+Puedes probar cada endpoint fácilmente con herramientas como **Postman**. Los métodos soportados incluyen:
 
-The easiest way to develop and test your function is to use the `dev` command:
+* `GET /users`, `GET /users/{id}`
+* `POST /vendors`
+* `PATCH /quotes/{id}`
+* `DELETE /venues/{id}`
+* etc.
 
-```
-serverless dev
-```
+---
 
-This will start a local emulator of AWS Lambda and tunnel your requests to and from AWS Lambda, allowing you to interact with your function as if it were running in the cloud.
+## 📌 Notas
 
-Now you can invoke the function as before, but this time the function will be executed locally. Now you can develop your function locally, invoke it, and see the results immediately without having to re-deploy.
-
-When you are done developing, don't forget to run `serverless deploy` to deploy the function to the cloud.
+* Cada tabla de DynamoDB utiliza \`\`\*\* como clave primaria\*\*, y tiene configurado `BillingMode: PAY_PER_REQUEST`.
+* Las actualizaciones (`PATCH`) están diseñadas para ser **flexibles**, solo aceptan campos válidos.
+* Serverless Framework maneja automáticamente el provisioning de las funciones, roles y recursos.
