@@ -1,0 +1,218 @@
+service: event-manager-app
+
+# frameworkVersion: "3.38.0"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: dev
+  memorySize: 128
+  timeout: 10
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+          Resource: "*"
+  environment:
+    USERS_TABLE: users
+    VENDORS_TABLE: vendors
+    VENUES_TABLE: venues
+    QUOTES_TABLE: quotes
+
+functions:
+  # Users
+  createUser:
+    handler: functions/users/createUser.handler
+    events:
+      - http:
+          path: users
+          method: post
+
+  getUserById:
+    handler: functions/users/getUserById.handler
+    events:
+      - http:
+          path: users/{id}
+          method: get
+
+  listUsers:
+    handler: functions/users/listUsers.handler
+    events:
+      - http:
+          path: users
+          method: get
+
+  updateUser:
+    handler: functions/users/updateUser.handler
+    events:
+      - http:
+          path: users/{id}
+          method: put
+
+  deleteUser:
+    handler: functions/users/deleteUser.handler
+    events:
+      - http:
+          path: users/{id}
+          method: delete
+
+  # Vendors
+  createVendor:
+    handler: functions/vendors/createVendor.handler
+    events:
+      - http:
+          path: vendors
+          method: post
+
+  getVendorById:
+    handler: functions/vendors/getVendorById.handler
+    events:
+      - http:
+          path: vendors/{id}
+          method: get
+
+  listVendors:
+    handler: functions/vendors/listVendors.handler
+    events:
+      - http:
+          path: vendors
+          method: get
+
+  updateVendor:
+    handler: functions/vendors/updateVendor.handler
+    events:
+      - http:
+          path: vendors/{id}
+          method: put
+
+  deleteVendor:
+    handler: functions/vendors/deleteVendor.handler
+    events:
+      - http:
+          path: vendors/{id}
+          method: delete
+
+  # Venues
+  createVenue:
+    handler: functions/venues/createVenue.handler
+    events:
+      - http:
+          path: venues
+          method: post
+
+  getVenueById:
+    handler: functions/venues/getVenueById.handler
+    events:
+      - http:
+          path: venues/{id}
+          method: get
+
+  listVenues:
+    handler: functions/venues/listVenues.handler
+    events:
+      - http:
+          path: venues
+          method: get
+
+  updateVenue:
+    handler: functions/venues/updateVenue.handler
+    events:
+      - http:
+          path: venues/{id}
+          method: put
+
+  deleteVenue:
+    handler: functions/venues/deleteVenue.handler
+    events:
+      - http:
+          path: venues/{id}
+          method: delete
+
+  # Quotes
+  createQuote:
+    handler: functions/quotes/createQuote.handler
+    events:
+      - http:
+          path: quotes
+          method: post
+
+  getQuoteById:
+    handler: functions/quotes/getQuoteById.handler
+    events:
+      - http:
+          path: quotes/{id}
+          method: get
+
+  listQuotes:
+    handler: functions/quotes/listQuotes.handler
+    events:
+      - http:
+          path: quotes
+          method: get
+
+  updateQuote:
+    handler: functions/quotes/updateQuote.handler
+    events:
+      - http:
+          path: quotes/{id}
+          method: put
+
+  deleteQuote:
+    handler: functions/quotes/deleteQuote.handler
+    events:
+      - http:
+          path: quotes/{id}
+          method: delete
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: users
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    VendorsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: vendors
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    VenuesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: venues
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+    QuotesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: quotes
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
