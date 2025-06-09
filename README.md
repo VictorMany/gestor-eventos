@@ -1,4 +1,4 @@
-# 🎉 Event Booking API – Serverless Microservices
+# 🎉 Event Booking API – Serverless Microservices 
 
 Este proyecto es una API RESTful construida con **AWS Lambda** y el framework **Serverless v4**, diseñada para gestionar un sistema de reservas de eventos. Utiliza **DynamoDB** como base de datos y expone múltiples endpoints organizados por recursos clave como usuarios, lugares (venues), proveedores (vendors) y cotizaciones (quotes).
 
