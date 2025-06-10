@@ -4,6 +4,12 @@ const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
+const getItemById = async (tableName, id) => {
+  const params = { TableName: tableName, Key: { id } };
+  const result = await dynamoDb.get(params).promise();
+  return result.Item;
+};
+
 module.exports.handler = async (event) => {
   try {
     const data = JSON.parse(event.body);
@@ -14,14 +20,64 @@ module.exports.handler = async (event) => {
       "eventDate",
       "servicesRequested",
       "estimatedCost",
+      "requiresVenue",
     ];
+
     for (const field of requiredFields) {
-      if (!data[field]) {
+      if (data[field] === undefined || data[field] === null) {
         return {
           statusCode: 400,
           body: JSON.stringify({ message: `Missing required field: ${field}` }),
         };
       }
+    }
+
+    if (data.requiresVenue && !data.venueId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message: "Missing required field: venueId when requiresVenue is true",
+        }),
+      };
+    }
+
+    // Lanzar consultas en paralelo
+    const clientPromise = getItemById(process.env.USERS_TABLE, data.clientId);
+    const vendorPromise = getItemById(process.env.VENDORS_TABLE, data.vendorId);
+    let venuePromise = null;
+    if (data.requiresVenue) {
+      venuePromise = getItemById(process.env.VENUES_TABLE, data.venueId);
+    }
+
+    const [client, vendor, venue] = await Promise.all([
+      clientPromise,
+      vendorPromise,
+      venuePromise,
+    ]);
+
+    if (!client) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          message: `Client with id ${data.clientId} not found`,
+        }),
+      };
+    }
+    if (!vendor) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          message: `Vendor with id ${data.vendorId} not found`,
+        }),
+      };
+    }
+    if (data.requiresVenue && !venue) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          message: `Venue with id ${data.venueId} not found`,
+        }),
+      };
     }
 
     const timestamp = new Date().toISOString();
@@ -31,11 +87,13 @@ module.exports.handler = async (event) => {
       id: quoteId,
       clientId: data.clientId,
       vendorId: data.vendorId,
-      eventDate: data.eventDate, // ISO 8601 string e.g., "2025-08-10"
-      servicesRequested: data.servicesRequested, // array e.g., ["catering", "sound"]
+      eventDate: data.eventDate,
+      servicesRequested: data.servicesRequested,
       estimatedCost: data.estimatedCost,
+      requiresVenue: data.requiresVenue,
+      venueId: data.requiresVenue ? data.venueId : null,
       notes: data.notes || null,
-      status: "pending", // initial status
+      status: "pending",
       createdAt: timestamp,
       updatedAt: timestamp,
     };

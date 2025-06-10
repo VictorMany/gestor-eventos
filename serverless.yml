@@ -1,7 +1,5 @@
 service: event-manager-app
 
-# frameworkVersion: "3.38.0"
-
 provider:
   name: aws
   runtime: nodejs18.x
@@ -14,8 +12,25 @@ provider:
       statements:
         - Effect: Allow
           Action:
-            - dynamodb:*
-          Resource: "*"
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Scan
+            - dynamodb:Query
+          Resource:
+            - arn:aws:dynamodb:us-east-1:*:table/users
+            - arn:aws:dynamodb:us-east-1:*:table/users/index/email-index
+            - arn:aws:dynamodb:us-east-1:*:table/vendors
+            - arn:aws:dynamodb:us-east-1:*:table/vendors/index/category-index
+            - arn:aws:dynamodb:us-east-1:*:table/vendors/index/name-index
+            - arn:aws:dynamodb:us-east-1:*:table/venues
+            - arn:aws:dynamodb:us-east-1:*:table/venues/index/city-index
+            - arn:aws:dynamodb:us-east-1:*:table/venues/index/name-index
+            - arn:aws:dynamodb:us-east-1:*:table/quotes
+            - arn:aws:dynamodb:us-east-1:*:table/quotes/index/clientId-index
+            - arn:aws:dynamodb:us-east-1:*:table/quotes/index/vendorId-index
+            - arn:aws:dynamodb:us-east-1:*:table/quotes/index/venueId-index
   environment:
     USERS_TABLE: users
     VENDORS_TABLE: vendors
@@ -59,6 +74,13 @@ functions:
           path: users/{id}
           method: delete
 
+  getUserByEmail:
+    handler: functions/users/getUserByEmail.handler
+    events:
+      - http:
+          path: users/by-email
+          method: get
+
   # Vendors
   createVendor:
     handler: functions/vendors/createVendor.handler
@@ -94,6 +116,20 @@ functions:
       - http:
           path: vendors/{id}
           method: delete
+
+  getVendorByName:
+    handler: functions/vendors/getVendorByName.handler
+    events:
+      - http:
+          path: vendors/by-name
+          method: get
+
+  getVendorByCategory:
+    handler: functions/vendors/getVendorByCategory.handler
+    events:
+      - http:
+          path: vendors/by-category
+          method: get
 
   # Venues
   createVenue:
@@ -131,6 +167,20 @@ functions:
           path: venues/{id}
           method: delete
 
+  getVenueByCity:
+    handler: functions/venues/getVenueByCity.handler
+    events:
+      - http:
+          path: venues/by-city
+          method: get
+
+  getVenueByName:
+    handler: functions/venues/getVenueByName.handler
+    events:
+      - http:
+          path: venues/by-name
+          method: get
+
   # Quotes
   createQuote:
     handler: functions/quotes/createQuote.handler
@@ -167,6 +217,27 @@ functions:
           path: quotes/{id}
           method: delete
 
+  getQuotesByClientId:
+    handler: functions/quotes/getQuotesByClientId.handler
+    events:
+      - http:
+          path: quotes/by-client
+          method: get
+
+  getQuotesByVendorId:
+    handler: functions/quotes/getQuotesByVendorId.handler
+    events:
+      - http:
+          path: quotes/by-vendor
+          method: get
+
+  getQuotesByVenueId:
+    handler: functions/quotes/getQuotesByVenueId.handler
+    events:
+      - http:
+          path: quotes/by-venue
+          method: get
+
 resources:
   Resources:
     UsersTable:
@@ -176,9 +247,18 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: email
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: email-index
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
 
     VendorsTable:
@@ -188,9 +268,26 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: category
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: category-index
+            KeySchema:
+              - AttributeName: category
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: name-index
+            KeySchema:
+              - AttributeName: name
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
 
     VenuesTable:
@@ -200,9 +297,26 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: city
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: city-index
+            KeySchema:
+              - AttributeName: city
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: name-index
+            KeySchema:
+              - AttributeName: name
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
 
     QuotesTable:
@@ -212,7 +326,32 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: clientId
+            AttributeType: S
+          - AttributeName: vendorId
+            AttributeType: S
+          - AttributeName: venueId
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: clientId-index
+            KeySchema:
+              - AttributeName: clientId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: vendorId-index
+            KeySchema:
+              - AttributeName: vendorId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: venueId-index
+            KeySchema:
+              - AttributeName: venueId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
