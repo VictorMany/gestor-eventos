@@ -1,6 +1,6 @@
-import queryByAttribute from '../../libs/dynamodb/queryByAttribute';
+const getQueryByAttribute = require('../../libs/dynamodb/getQueryByAttribute');
 
-export async function handler(event) {
+module.exports.handler = async (event) => {
   const clientId = event.queryStringParameters?.clientId;
 
   if (!clientId) {
@@ -11,7 +11,7 @@ export async function handler(event) {
   }
 
   try {
-    const quotes = await queryByAttribute({
+    const quotes = await getQueryByAttribute({
       tableName: process.env.QUOTES_TABLE,
       indexName: 'clientId-index',
       keyName: 'clientId',
@@ -29,4 +29,4 @@ export async function handler(event) {
       body: JSON.stringify({ message: 'Server error' }),
     };
   }
-}
+};

@@ -1,6 +1,6 @@
-import queryByAttribute from '../../libs/dynamodb/queryByAttribute';
+const getQueryByAttribute = require('../../libs/dynamodb/getQueryByAttribute');
 
-export async function handler(event) {
+module.exports.handler = async (event) => {
   const name = event.queryStringParameters?.name;
 
   if (!name) {
@@ -11,7 +11,7 @@ export async function handler(event) {
   }
 
   try {
-    const venues = await queryByAttribute({
+    const venues = await getQueryByAttribute({
       tableName: process.env.VENUES_TABLE,
       indexName: 'name-index',
       keyName: 'name',

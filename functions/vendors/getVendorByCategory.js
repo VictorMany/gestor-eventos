@@ -1,6 +1,7 @@
-import queryByAttribute from '../../libs/dynamodb/queryByAttribute';
+// functions/vendors/getVendorsByCategory.js
+const scanByAttributeContains = require('../../libs/dynamodb/scanByAttributeContains');
 
-export async function handler(event) {
+module.exports.handler = async (event) => {
   const category = event.queryStringParameters?.category;
 
   if (!category) {
@@ -11,17 +12,16 @@ export async function handler(event) {
   }
 
   try {
-    const vendors = await queryByAttribute({
+    const vendors = await scanByAttributeContains({
       tableName: process.env.VENDORS_TABLE,
-      indexName: 'CategoryIndex',
-      keyName: 'category',
-      keyValue: category,
+      attributeName: 'category',
+      keyword: category,
     });
 
     if (!vendors || vendors.length === 0) {
       return {
         statusCode: 404,
-        body: JSON.stringify({ message: 'No vendors found for this category' }),
+        body: JSON.stringify({ message: 'No vendors found for the given category' }),
       };
     }
 
@@ -30,10 +30,10 @@ export async function handler(event) {
       body: JSON.stringify(vendors),
     };
   } catch (err) {
-    console.error('Error querying vendor by category:', err);
+    console.error('Error scanning vendors by category:', err);
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Internal server error' }),
     };
   }
-}
+};

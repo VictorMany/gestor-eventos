@@ -1,6 +1,6 @@
-import queryByAttribute from '../../libs/dynamodb/queryByAttribute';
+const scanByAttributeContains = require('../../libs/dynamodb/scanByAttributeContains');
 
-export async function handler(event) {
+module.exports.handler = async (event) => {
   const name = event.queryStringParameters?.name;
 
   if (!name) {
@@ -11,11 +11,10 @@ export async function handler(event) {
   }
 
   try {
-    const vendors = await queryByAttribute({
+    const vendors = await scanByAttributeContains({
       tableName: process.env.VENDORS_TABLE,
-      indexName: 'NameIndex',
-      keyName: 'name',
-      keyValue: name,
+      attributeName: 'name',
+      keyword: name,
     });
 
     if (!vendors || vendors.length === 0) {
@@ -30,10 +29,10 @@ export async function handler(event) {
       body: JSON.stringify(vendors),
     };
   } catch (err) {
-    console.error('Error querying vendor by name:', err);
+    console.error('Error scanning vendor by name:', err);
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Internal server error' }),
     };
   }
-}
+};

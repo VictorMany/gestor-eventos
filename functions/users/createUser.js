@@ -2,7 +2,6 @@
 
 const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
-// instancia de Dynamo
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 //handler para crear un nuevo usuario

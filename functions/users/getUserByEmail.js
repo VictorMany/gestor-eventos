@@ -1,7 +1,7 @@
 // functions/users/getUserByEmail.js
-import queryByAttribute from '../../libs/dynamodb/queryByAttribute';
+const getQueryByAttribute = require('../../libs/dynamodb/getQueryByAttribute');
 
-export async function handler(event) {
+module.exports.handler = async (event) => {
   const email = event.queryStringParameters?.email;
 
   if (!email) {
@@ -12,9 +12,9 @@ export async function handler(event) {
   }
 
   try {
-    const users = await queryByAttribute({
+    const users = await getQueryByAttribute({
       tableName: process.env.USERS_TABLE,
-      indexName: 'EmailIndex',
+      indexName: 'email-index',
       keyName: 'email',
       keyValue: email,
     });

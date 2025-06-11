@@ -2,7 +2,7 @@ service: event-manager-app
 
 provider:
   name: aws
-  runtime: nodejs18.x
+  runtime: nodejs20.x
   region: us-east-1
   stage: dev
   memorySize: 128
@@ -20,7 +20,8 @@ provider:
             - dynamodb:Query
           Resource:
             - arn:aws:dynamodb:us-east-1:*:table/users
-            - arn:aws:dynamodb:us-east-1:*:table/users/index/email-index
+            # - arn:aws:dynamodb:us-east-1:*:table/users/index/email-index
+            - arn:aws:dynamodb:us-east-1:369950831239:table/users/index/email-index
             - arn:aws:dynamodb:us-east-1:*:table/vendors
             - arn:aws:dynamodb:us-east-1:*:table/vendors/index/category-index
             - arn:aws:dynamodb:us-east-1:*:table/vendors/index/name-index
@@ -249,6 +250,8 @@ resources:
             AttributeType: S
           - AttributeName: email
             AttributeType: S
+          - AttributeName: name
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
@@ -256,6 +259,12 @@ resources:
           - IndexName: email-index
             KeySchema:
               - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: name-index
+            KeySchema:
+              - AttributeName: name
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
