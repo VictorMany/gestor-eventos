@@ -1,4 +1,4 @@
-const getQueryByAttribute = require('../../libs/dynamodb/getQueryByAttribute');
+const scanByAttributeContains = require('../../libs/dynamodb/scanByAttributeContains');
 
 module.exports.handler = async (event) => {
   const name = event.queryStringParameters?.name;
@@ -11,22 +11,28 @@ module.exports.handler = async (event) => {
   }
 
   try {
-    const venues = await getQueryByAttribute({
+    const venues = await scanByAttributeContains({
       tableName: process.env.VENUES_TABLE,
-      indexName: 'name-index',
-      keyName: 'name',
-      keyValue: name,
+      attributeName: 'name',
+      keyword: name,
     });
+
+    if (!venues || venues.length === 0) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ message: 'Venue not found' }),
+      };
+    }
 
     return {
       statusCode: 200,
       body: JSON.stringify(venues),
     };
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error('Error scanning venue by name:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Server error' }),
+      body: JSON.stringify({ message: 'Internal server error' }),
     };
   }
-}
+};
