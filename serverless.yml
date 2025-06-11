@@ -22,6 +22,7 @@ provider:
             - arn:aws:dynamodb:us-east-1:*:table/users
             # - arn:aws:dynamodb:us-east-1:*:table/users/index/email-index
             - arn:aws:dynamodb:us-east-1:369950831239:table/users/index/email-index
+            # - arn:aws:dynamodb:us-east-1:369950831239:table/users/index/name-index
             - arn:aws:dynamodb:us-east-1:*:table/vendors
             - arn:aws:dynamodb:us-east-1:*:table/vendors/index/category-index
             - arn:aws:dynamodb:us-east-1:*:table/vendors/index/name-index
@@ -80,6 +81,13 @@ functions:
     events:
       - http:
           path: users/by-email
+          method: get
+  
+  getUserByName:
+    handler: functions/users/getUserByName.handler
+    events:
+      - http:
+          path: users/by-name
           method: get
 
   # Vendors

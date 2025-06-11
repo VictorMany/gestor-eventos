@@ -12,8 +12,8 @@ module.exports.handler = async (event) => {
 
     try {
         const users = await scanByAttributeContains({
-            tableName: process.env.VENDORS_TABLE,
-            attributeName: 'name',
+            tableName: process.env.USERS_TABLE,
+            attributeName: 'fullName',
             keyword: name,
         });
 
