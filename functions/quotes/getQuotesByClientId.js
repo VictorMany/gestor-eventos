@@ -1,4 +1,4 @@
-const getQueryByAttribute = require('../../libs/dynamodb/getQueryByAttribute');
+const getQueryByAttribute = require("../../libs/dynamodb/getQueryByAttribute");
 
 module.exports.handler = async (event) => {
   const clientId = event.queryStringParameters?.clientId;
@@ -6,15 +6,15 @@ module.exports.handler = async (event) => {
   if (!clientId) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: 'Missing clientId parameter' }),
+      body: JSON.stringify({ message: "Missing clientId parameter" }),
     };
   }
 
   try {
     const quotes = await getQueryByAttribute({
       tableName: process.env.QUOTES_TABLE,
-      indexName: 'clientId-index',
-      keyName: 'clientId',
+      indexName: "clientId-index",
+      keyName: "clientId",
       keyValue: clientId,
     });
 
@@ -26,7 +26,7 @@ module.exports.handler = async (event) => {
     console.error(err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Server error' }),
+      body: JSON.stringify({ message: "Server error" }),
     };
   }
 };
