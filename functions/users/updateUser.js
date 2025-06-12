@@ -50,6 +50,7 @@ module.exports.handler = async (event) => {
     UpdateExpression,
     ExpressionAttributeNames,
     ExpressionAttributeValues,
+    ConditionExpression: "attribute_exists(id)", // 👈 Esto evita que se cree si no existe
     ReturnValues: "ALL_NEW",
   };
 
@@ -65,6 +66,14 @@ module.exports.handler = async (event) => {
     };
   } catch (error) {
     console.error("Error updating user:", error);
+
+    if (error.code === "ConditionalCheckFailedException") {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ message: `User with ID ${userId} not found.` }),
+      };
+    }
+
     return {
       statusCode: 500,
       body: JSON.stringify({ message: "Error updating user" }),

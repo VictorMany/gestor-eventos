@@ -51,6 +51,7 @@ module.exports.handler = async (event) => {
     UpdateExpression,
     ExpressionAttributeNames,
     ExpressionAttributeValues,
+    ConditionExpression: "attribute_exists(id)", // 👈 Esto evita que se cree si no existe
     ReturnValues: "ALL_NEW",
   };
 
