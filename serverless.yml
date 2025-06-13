@@ -20,9 +20,7 @@ provider:
             - dynamodb:Query
           Resource:
             - arn:aws:dynamodb:us-east-1:*:table/users
-            # - arn:aws:dynamodb:us-east-1:*:table/users/index/email-index
             - arn:aws:dynamodb:us-east-1:369950831239:table/users/index/email-index
-            # - arn:aws:dynamodb:us-east-1:369950831239:table/users/index/name-index
             - arn:aws:dynamodb:us-east-1:*:table/vendors
             - arn:aws:dynamodb:us-east-1:*:table/vendors/index/category-index
             - arn:aws:dynamodb:us-east-1:*:table/vendors/index/name-index
@@ -30,6 +28,7 @@ provider:
             - arn:aws:dynamodb:us-east-1:*:table/venues/index/city-index
             - arn:aws:dynamodb:us-east-1:*:table/venues/index/name-index
             - arn:aws:dynamodb:us-east-1:*:table/quotes
+            - arn:aws:dynamodb:us-east-1:*:table/vendor-services
             - arn:aws:dynamodb:us-east-1:*:table/quotes/index/clientId-index
             - arn:aws:dynamodb:us-east-1:*:table/quotes/index/vendorId-index
             - arn:aws:dynamodb:us-east-1:*:table/quotes/index/venueId-index
@@ -38,6 +37,7 @@ provider:
     VENDORS_TABLE: vendors
     VENUES_TABLE: venues
     QUOTES_TABLE: quotes
+    VENDOR_SERVICES_TABLE: vendor_services
 
 functions:
   # Users
@@ -82,7 +82,7 @@ functions:
       - http:
           path: users/by-email
           method: get
-  
+
   getUserByName:
     handler: functions/users/getUserByName.handler
     events:
@@ -247,6 +247,45 @@ functions:
           path: quotes/by-venue
           method: get
 
+  createVendorService:
+    handler: vendorServices/createVendorService.handler
+    events:
+      - http:
+          path: vendor-services
+          method: post
+          cors: true
+
+  getVendorServiceById:
+    handler: vendorServices/getVendorServiceById.handler
+    events:
+      - http:
+          path: vendor-services/{id}
+          method: get
+          cors: true
+
+  getVendorServicesByVendor:
+    handler: vendorServices/getVendorServicesByVendor.handler
+    events:
+      - http:
+          path: vendor-services/vendor/{vendorId}
+          method: get
+          cors: true
+
+  updateVendorService:
+    handler: vendorServices/updateVendorService.handler
+    events:
+      - http:
+          path: vendor-services/{id}
+          method: put
+          cors: true
+
+  deleteVendorService:
+    handler: vendorServices/deleteVendorService.handler
+    events:
+      - http:
+          path: vendor-services/{id}
+          method: delete
+          cors: true
 resources:
   Resources:
     UsersTable:
